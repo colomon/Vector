@@ -56,85 +56,82 @@ class Polynomial
     {
         [+] ((^(@.coefficients.elems)).map({@.coefficients[$_] * ($x ** $_)}));
     }
-}
 
-multi sub infix:<+>(Polynomial $a, Polynomial $b)
-{
-    my $lct = 0;
-    my @leftover = ();
-    given $a.coefficients.elems <=> $b.coefficients.elems
+    multi sub infix:<+>(Polynomial $a, Polynomial $b) is export(:DEFAULT)
     {
-        when -1 { $lct = $a.coefficients.elems - 1; @leftover = $b.coefficients[($lct+1)..(*-1)]; }
-        when +1 { $lct = $b.coefficients.elems - 1; @leftover = $a.coefficients[($lct+1)..(*-1)]; }
-        when 0 { $lct = $b.coefficients.elems - 1; }
-    }
-    # say "a: {$a.coefficients}";
-    # say "b: {$b.coefficients}";
-    # say "c: {$a.coefficients[0..$lct].perl}";
-    # say "d: {$b.coefficients[0..$lct].perl}";
-    # say "e: {@leftover.perl}";
-    return Polynomial.new($a.coefficients[0..$lct] >>+<< $b.coefficients[0..$lct], @leftover);
-}
-
-multi sub infix:<+>(Polynomial $a, $b)
-{
-    my @ac = $a.coefficients;
-    @ac[0] += $b;
-    return Polynomial.new(@ac);
-}
-
-multi sub infix:<+>($b, Polynomial $a)
-{
-    $a + $b;
-}
-
-multi sub prefix:<->(Polynomial $a)
-{
-    Polynomial.new($a.coefficients.map({-$_}));
-}
-
-multi sub infix:<->(Polynomial $a, Polynomial $b)
-{
-    -$b + $a;
-}
-
-multi sub infix:<->(Polynomial $a, $b)
-{
-    my @ac = $a.coefficients;
-    @ac[0] -= $b;
-    return Polynomial.new(@ac);
-}
-
-multi sub infix:<->($b, Polynomial $a)
-{
-    -$a + $b;
-}
-
-multi sub infix:<*>(Polynomial $a, Polynomial $b)
-{
-    my @coef = 0.0 xx ($a.coefficients.elems + $b.coefficients.elems - 1);
-    for ^($a.coefficients.elems) -> $m
-    {
-        for ^($b.coefficients.elems) -> $n
-        {
-            @coef[$m + $n] += $a.coefficients[$m] * $b.coefficients[$n];
+        my @poly = gather for ^(+$a.coefficients max +$b.coefficients) -> $i {
+            if $i < +$a.coefficients && $i < +$b.coefficients {
+                take $a.coefficients[$i] + $b.coefficients[$i];
+            } elsif $i < +$a.coefficients {
+                take $a.coefficients[$i];
+            } else {
+                take $b.coefficients[$i];
+            }
         }
+        
+        Polynomial.new(@poly);
     }
-    
-    return Polynomial.new(@coef);
-}
 
-multi sub infix:<*>(Polynomial $a, $b) is default
-{
-    Polynomial.new($a.coefficients >>*>> $b);
-}
+    multi sub infix:<+>(Polynomial $a, $b) is export(:DEFAULT)
+    {
+        my @ac = $a.coefficients;
+        @ac[0] += $b;
+        return Polynomial.new(@ac);
+    }
 
-multi sub infix:<*>($b, Polynomial $a) is default
-{
-    Polynomial.new($a.coefficients >>*>> $b);
-}
+    multi sub infix:<+>($b, Polynomial $a) is export(:DEFAULT)
+    {
+        $a + $b;
+    }
 
-multi sub infix:</>(Polynomial $a, $b)
-{
-    Polynomial.new($a.coefficients >>/>> $b);
+    multi sub prefix:<->(Polynomial $a) is export(:DEFAULT)
+    {
+        Polynomial.new($a.coefficients.map({-$_}));
+    }
+
+    multi sub infix:<->(Polynomial $a, Polynomial $b) is export(:DEFAULT)
+    {
+        -$b + $a;
+    }
+
+    multi sub infix:<->(Polynomial $a, $b) is export(:DEFAULT)
+    {
+        my @ac = $a.coefficients;
+        @ac[0] -= $b;
+        return Polynomial.new(@ac);
+    }
+
+    multi sub infix:<->($b, Polynomial $a) is export(:DEFAULT)
+    {
+        -$a + $b;
+    }
+
+    multi sub infix:<*>(Polynomial $a, Polynomial $b) is export(:DEFAULT)
+    {
+        my @coef = 0.0 xx ($a.coefficients.elems + $b.coefficients.elems - 1);
+        for ^($a.coefficients.elems) -> $m
+        {
+            for ^($b.coefficients.elems) -> $n
+            {
+                @coef[$m + $n] += $a.coefficients[$m] * $b.coefficients[$n];
+            }
+        }
+
+        return Polynomial.new(@coef);
+    }
+
+    multi sub infix:<*>(Polynomial $a, $b) is export(:DEFAULT)
+    {
+        Polynomial.new($a.coefficients >>*>> $b);
+    }
+
+    multi sub infix:<*>($b, Polynomial $a) is export(:DEFAULT)
+    {
+        Polynomial.new($a.coefficients >>*>> $b);
+    }
+
+    multi sub infix:</>(Polynomial $a, $b) is export(:DEFAULT)
+    {
+        Polynomial.new($a.coefficients >>/>> $b);
+    }
 }

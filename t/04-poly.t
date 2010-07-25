@@ -31,12 +31,13 @@ is($sum.coefficients.elems, 1, "p + (-p) has only one coefficient");
 is_approx($sum.coefficients[0], 0, "p + (-p) has only one coefficient == 0");
 
 $sum = $p + $p2;
+
 for ^10 -> $x
 {
     is_approx($sum.evaluate($x), $p.evaluate($x) + $p2.evaluate($x), "sum = p + p2 for $x");
 }
 
-$sum += 3;
+$sum = $sum + 3;  # was +=, but that doesn't work any more
 for ^10 -> $x
 {
     is_approx($sum.evaluate($x), $p.evaluate($x) + $p2.evaluate($x) + 3, "sum + 3 = p + p2 + 3 for $x");
@@ -102,7 +103,7 @@ for ^10 -> $x
     is_approx($product.evaluate($x), $p.evaluate($x) * $p2.evaluate($x), "product = p * p2 for $x");
 }
 
-$product /= 5.5;
+$product = $product / 5.5;  # was /=, but that doesn't work in current Rakudo
 for ^10 -> $x
 {
     is_approx($product.evaluate($x), $p.evaluate($x) * $p2.evaluate($x) / 5.5, "product / 5.5 = p * p2 / 5.5 for $x");
