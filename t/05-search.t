@@ -11,7 +11,11 @@ ok(([<=] @array), "array is sorted properly");
 for (0.5, 1.5, 2, 2.5, 3, 3.5, 4, 5.5, 6, 8) -> $x
 {
     my $i = LowerBound(@array, $x);
-    ok(@array[$i - 1] < $x <= @array[$i], "lower bound - 1 < $x <= lower bound");
+    if ($i == 0) {
+        ok($x <= @array[0], "$x <= lower bound (of [0])");
+    } else {
+        ok(@array[$i - 1] < $x <= @array[$i], "lower bound - 1 < $x <= lower bound");
+    }
 }
 
 is(LowerBound(@array, 8.5), @array.elems, "Off the big end returns max_index + 1");
