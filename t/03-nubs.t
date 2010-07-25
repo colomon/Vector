@@ -37,17 +37,17 @@ is_approx($nubs.ParameterRange()[0], -1, "ParameterRange starts at -1");
 is_approx($nubs.ParameterRange()[1], 3, "ParameterRange ends at 3");
 
 is_approx_vector $nubs.evaluate(-1), Vector.new(-1, -2, -3), "\$nubs.evaluate(-1) is (-1, -2, -3)";
-is_approx_vector $nubs.evaluate(3.0, Right), Vector.new(1, 2, -1), "\$nubs.evaluate(3.0) is (1, 2, -1)";
+is_approx_vector $nubs.evaluate(3.0, False), Vector.new(1, 2, -1), "\$nubs.evaluate(3.0) is (1, 2, -1)";
 
 my $translation = Vector.new(3, 4.0, 5);
-my Nubs $nubs3 = Nubs.new(3, KnotVector.new(@knots), @control_points >>+>> $translation);
+my Nubs $nubs3 = Nubs.new(3, KnotVector.new(@knots), @control_points.map(* + $translation));
 
 for RangeOfSize(-1, 3, 10) -> $t
 {
-    my $direction = $t < 3 ?? Left !! Right;
-    is_approx_vector $nubs3.evaluate($t, $direction), 
-                     $nubs.evaluate($t, $direction) + $translation, 
-                     "\$nubs3.evaluate($t, {$direction.perl}) == \$nubs.evaluate($t, {$direction.perl}) + \$translation";
+    my $direction-left = $t < 3;
+    is_approx_vector $nubs3.evaluate($t, $direction-left), 
+                     $nubs.evaluate($t, $direction-left) + $translation, 
+                     "\$nubs3.evaluate($t, {$direction-left.perl}) == \$nubs.evaluate($t, {$direction-left.perl}) + \$translation";
     is_approx_vector $nubs3.evaluate($t), $nubs.evaluate($t) + $translation, 
                      "\$nubs3.evaluate($t) == \$nubs.evaluate($t) + \$translation";
 }

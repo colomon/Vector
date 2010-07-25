@@ -32,8 +32,13 @@ class Nubs
     multi method evaluate($t, $direction-left = self.Direction($t))
     {
         my $n0 = $.knot_vector.N0_index($.degree, $t, $direction-left);
-        return [+] ($.knot_vector.N_local($n0, $.degree, $t) 
-                    >>*<< @.control_points[$n0 .. ($n0 + $.degree)]);
+        my $result = 0 * @.control_points[0];
+        for $.knot_vector.N_local($n0, $.degree, $t) Z @.control_points[$n0 .. ($n0 + $.degree)] -> $a, $b {
+            $result = $result + $a * $b;
+        }
+        $result;
+        # return [+] ($.knot_vector.N_local($n0, $.degree, $t) 
+        #             >>*<< @.control_points[$n0 .. ($n0 + $.degree)]);
     }
     
     multi method evaluate($base_t, $actual_t, $direction-left = self.Direction($base_t))
