@@ -1,30 +1,7 @@
 use v6;
 use BinarySearch;
 
-enum KnotBasisDirection <Left Right>;
-
-sub infix:<O/>($a, $b)
-{
-    return 0 if abs($b) < 1e-10;
-    return $a / $b;
-}
-
-# this one is handy for testing
-multi sub RangeOfSize($a, $b, $size)
-{
-    my $delta = ($b - $a) / ($size - 1);
-    my $value = $a; 
-    return gather
-    {
-        loop (my $i = 0; $i + 1 < $size; $i++)
-        {
-            my $result = $value;
-            take $result;
-            $value += $delta;
-        }
-        take $b;
-    }
-}
+# enum KnotBasisDirection <Left Right>;
 
 class KnotVector
 {
@@ -44,13 +21,20 @@ class KnotVector
     {
         self.WHAT.perl ~ ".new((" ~ @.knots.map({.perl}).join(', ') ~ "))";        
     }
-        
-    multi method N0_index(Int $p, $u, KnotBasisDirection $direction = Left)
+
+    sub infix:<O/>($a, $b) is export(:DEFAULT)
     {
-        given $direction
-        {
-            when Left { UpperBound(@.knots, $u) - $p - 1; }
-            when Right { LowerBound(@.knots, $u) - $p - 1; }
+        return 0 if abs($b) < 1e-10;
+        return $a / $b;
+    }
+
+        
+    multi method N0_index(Int $p, $u, $direction-left = True)
+    {
+        if $direction-left {
+            UpperBound(@.knots, $u) - $p - 1;
+        } else {
+            LowerBound(@.knots, $u) - $p - 1;
         }
     }
     
@@ -73,9 +57,9 @@ class KnotVector
         return @N;
     }
     
-    multi method N(Int $p, $u, KnotBasisDirection $direction = Left)
+    multi method N(Int $p, $u, $direction-left = True)
     {
-        my $n0 = self.N0_index($p, $u, $direction);
+        my $n0 = self.N0_index($p, $u, $direction-left);
         my @N = 0 xx (@.knots.elems - $p - 1);
         @N[($n0)..($n0 + $p)] = self.N_local($n0, $p, $u);
         return @N;
@@ -84,5 +68,22 @@ class KnotVector
     multi method ParameterRange(Int $p)
     {
         ($.knots[$p], $.knots[*-$p]);
+    }
+    
+    # this one is handy for testing
+    multi sub RangeOfSize($a, $b, $size) is export(:DEFAULT)
+    {
+        my $delta = ($b - $a) / ($size - 1);
+        my $value = $a; 
+        return gather
+        {
+            loop (my $i = 0; $i + 1 < $size; $i++)
+            {
+                my $result = $value;
+                take $result;
+                $value += $delta;
+            }
+            take $b;
+        }
     }
 }

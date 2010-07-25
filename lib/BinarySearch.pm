@@ -1,6 +1,6 @@
-use v6;
+module BinarySearch;
 
-sub LowerBound(@x, $key)
+sub LowerBound(@x, $key) is export(:DEFAULT)
 {
     my $first = 0;
     my $len = @x.elems;
@@ -21,7 +21,7 @@ sub LowerBound(@x, $key)
     return $first;
 }
 
-sub UpperBound(@x, $key)
+sub UpperBound(@x, $key) is export(:DEFAULT)
 {
     my $first = 0;
     my $len = @x.elems;
